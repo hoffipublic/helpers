@@ -1,0 +1,70 @@
+import groovy.json.JsonSlurper
+
+buildscript {
+    ext {
+        versions = new JsonSlurper().parseFile(rootProject.file('dependencies.json'), 'UTF-8')
+        v = {  x -> versions.latest.default[x] }
+    }
+
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'application'
+}
+
+ext {
+    group = "yourArtefactGroup"
+}
+
+repositories {
+    jcenter()
+}
+
+project.targetCompatibility = JavaVersion.VERSION_1_8
+project.sourceCompatibility = JavaVersion.VERSION_1_8
+
+application {
+    mainClassName = 'your.path.to.mainJavaClass'
+}
+
+dependencies {
+    implementation "info.picocli:picocli:${v('picocliVersion')}"
+    implementation "org.apache.commons:commons-lang3:${v('commonsLang3Version')}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${v('junitJupiterVersion')}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${v('junitJupiterVersion')}"
+}
+
+test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": application.mainClassName
+    }
+ 
+    from {
+        // configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        // filters only existing and non-empty dirs
+        sourceSets.main.runtimeClasspath
+            .filter {  (it.isDirectory() && it.listFiles().length > 0) || it.isFile() }
+            .collect { it.isDirectory() ? it : zipTree(it) }
+
+    }
+}
+
+task printClasspath(group:project.rootProject.ext.group, description:"print classpath") {
+    dependsOn subprojects.build
+    doLast {
+        // filters only existing and non-empty dirs
+        sourceSets.main.runtimeClasspath
+            .filter { (it.isDirectory() && it.listFiles().length > 0) || it.isFile() }
+            .each{ println it }
+    }
+}
