@@ -17,7 +17,6 @@ import helpers.tuple.Quadruple;
  * either of the key to retrieve it.
  * 
  * @author Dirk Hoffmann
- * @author Prathab K
  *
  */
 public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, V>> {
