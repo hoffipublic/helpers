@@ -231,6 +231,7 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
                 throw new NoSuchElementException();
             }
             Triple<K1, K2, V> toReturn = next; // new next will be computed now ...
+            
             if(level2EntrySetIter.hasNext()) {
                 Entry<K2, V> nextLevel2Entry = level2EntrySetIter.next();
                 current = next;

@@ -32,6 +32,7 @@ application {
 }
 
 dependencies {
+    compile "ch.qos.logback:logback-classic:${v('logbackVersion')}"
     implementation "info.picocli:picocli:${v('picocliVersion')}"
     implementation "org.apache.commons:commons-lang3:${v('commonsLang3Version')}"
 
@@ -42,6 +43,9 @@ dependencies {
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED" //, "STARTED"
+    }
 }
 
 jar {

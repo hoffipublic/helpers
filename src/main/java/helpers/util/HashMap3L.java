@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import helpers.tuple.Quadruple;
 
 /**
@@ -463,5 +465,119 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
     @Override
     public Iterator<Quadruple<K1, K2, K3, V>> iterator() {
         return new HashMap3LIterator();
+    }
+
+    class HashMap3LIterator2L implements Iterator<Triple<K2, K3, V>> {
+        Iterator<Map.Entry<K2, Map<K3, V>>> level2EntrySetIter = null;
+        Iterator<Map.Entry<K3, V>> level3EntrySetIter = null;
+
+        Triple<K2, K3, V> next; // next entry to return
+        Triple<K2, K3, V> current; // current entry
+
+        HashMap3LIterator2L(K1 rootKey) {
+            current = next = null;
+            Map<K2, Map<K3, V>> level2Map = HashMap3L.this.get(rootKey);
+            if (level2Map != null) {
+                level2EntrySetIter = level2Map.entrySet().iterator();
+                if (level2EntrySetIter.hasNext()) {
+                    Entry<K2, Map<K3, V>> firstLevel2Entry = level2EntrySetIter.next();
+                    level3EntrySetIter = firstLevel2Entry.getValue().entrySet().iterator();
+                    if (level3EntrySetIter.hasNext()) {
+                        Entry<K3, V> firstLevel3Entry = level3EntrySetIter.next();
+                        next = Triple.of(firstLevel2Entry.getKey(), firstLevel3Entry.getKey(), firstLevel3Entry.getValue());
+                    }
+                }
+            }
+        }
+
+        public final boolean hasNext() {
+            return next != null;
+        }
+
+        public Triple<K2, K3, V> next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Triple<K2, K3, V> toReturn = next; // new next will be computed now ...
+
+            if (level3EntrySetIter.hasNext()) {
+                Entry<K3, V> nextLevel3Entry = level3EntrySetIter.next();
+                current = next;
+                next = Triple.of(current.getLeft(), nextLevel3Entry.getKey(), nextLevel3Entry.getValue());
+            } else if (level2EntrySetIter.hasNext()) {
+                current = next;
+                next = null;
+                // level3Maps might be associated to a level2 key, but if they are empty, level3.hasNext() -> false
+                // so we are searching for the next level3 entry that has any Level 3 values associated,
+                // which might not be in this or the next level2Map entry
+                boolean nextLevel2KeyWithElementsInLevel3MapFOUND = false;
+                while (!nextLevel2KeyWithElementsInLevel3MapFOUND && level2EntrySetIter.hasNext()) {
+                    // advance in level2Map
+                    Entry<K2, Map<K3, V>> nextLevel2Entry = level2EntrySetIter.next();
+                    level3EntrySetIter = nextLevel2Entry.getValue().entrySet().iterator(); // hasNext() checked above
+                    if (level3EntrySetIter.hasNext()) {
+                        Entry<K3, V> nextLevel3Entry = level3EntrySetIter.next();
+                        next = Triple.of(nextLevel2Entry.getKey(), nextLevel3Entry.getKey(), nextLevel3Entry.getValue());
+                        nextLevel2KeyWithElementsInLevel3MapFOUND = true;
+                    }
+                    // else this level2Key had a Map which was empty
+                }
+            } else {
+                current = next;
+                next = null;
+            }
+            return toReturn;
+        }
+    }
+
+    public Iterator<Triple<K2, K3, V>> iterator(K1 rootKey) {
+        return new HashMap3LIterator2L(rootKey);
+    }
+
+    class HashMap3LIterator3L implements Iterator<Pair<K3, V>> {
+        Iterator<Map.Entry<K3, V>> level3EntrySetIter = null;
+
+        Pair<K3, V> next; // next entry to return
+        Pair<K3, V> current; // current entry
+
+        HashMap3LIterator3L(K1 rootKey, K2 k2) {
+            current = next = null;
+            Map<K2, Map<K3, V>> level2Map = HashMap3L.this.get(rootKey);
+            if (level2Map != null) {
+                Map<K3, V> level3Map = level2Map.get(k2);
+                if (level2Map != null) {
+                    level3EntrySetIter = level3Map.entrySet().iterator();
+                    if (level3EntrySetIter.hasNext()) {
+                        Entry<K3, V> firstLevel3Entry = level3EntrySetIter.next();
+                        next = Pair.of(firstLevel3Entry.getKey(), firstLevel3Entry.getValue());
+                    }
+                }
+            }
+        }
+
+        public final boolean hasNext() {
+            return next != null;
+        }
+
+        public Pair<K3, V> next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Pair<K3, V> toReturn = next; // new next will be computed now ...
+
+            if (level3EntrySetIter.hasNext()) {
+                Entry<K3, V> nextLevel3Entry = level3EntrySetIter.next();
+                current = next;
+                next = Pair.of(nextLevel3Entry.getKey(), nextLevel3Entry.getValue());
+            } else {
+                current = next;
+                next = null;
+            }
+            return toReturn;
+        }
+    }
+
+    public Iterator<Pair<K3, V>> iterator(K1 rootKey, K2 k2) {
+        return new HashMap3LIterator3L(rootKey, k2);
     }
 }
