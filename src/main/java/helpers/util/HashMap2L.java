@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -268,6 +272,16 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
         return new HashMap2LIterator();
     }
 
+    @Override
+    public Spliterator<Triple<K1, K2, V>> spliterator() {
+        return Spliterators.spliteratorUnknownSize(iterator(), 0);
+    }
+
+    public Stream<Triple<K1, K2, V>> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
+
     class HashMap2LIteratorLevel2 implements Iterator<Pair<K2, V>> {
         Iterator<Map.Entry<K2, V>> level2EntrySetIter = null;
 
@@ -313,4 +327,13 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
     public Iterator<Pair<K2, V>> iterator(K1 rootKey) {
         return new HashMap2LIteratorLevel2(rootKey);
     }
+
+    public Spliterator<Pair<K2, V>> spliterator(K1 rootKey) {
+        return Spliterators.spliteratorUnknownSize(iterator(rootKey), 0);
+    }
+
+    public Stream<Pair<K2, V>> stream(K1 rootKey) {
+        return StreamSupport.stream(spliterator(rootKey), false);
+    }
+
 }

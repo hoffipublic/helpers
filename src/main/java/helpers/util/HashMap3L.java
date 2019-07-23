@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import helpers.tuple.Quadruple;
@@ -466,6 +470,15 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
         return new HashMap3LIterator();
     }
 
+    @Override
+    public Spliterator<Quadruple<K1, K2, K3, V>> spliterator() {
+        return Spliterators.spliteratorUnknownSize(iterator(), 0);
+    }
+
+    public Stream<Quadruple<K1, K2, K3, V>>	stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
     class HashMap3LIterator2L implements Iterator<Triple<K2, K3, V>> {
         Iterator<Map.Entry<K2, Map<K3, V>>> level2EntrySetIter = null;
         Iterator<Map.Entry<K3, V>> level3EntrySetIter = null;
@@ -533,6 +546,16 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
         return new HashMap3LIterator2L(rootKey);
     }
 
+    public Spliterator<Triple<K2, K3, V>> spliterator(K1 rootKey) {
+        return Spliterators.spliteratorUnknownSize(iterator(rootKey), 0);
+    }
+
+    public Stream<Triple<K2, K3, V>> stream(K1 rootKey) {
+        return StreamSupport.stream(spliterator(rootKey), false);
+    }
+
+
+
     class HashMap3LIterator3L implements Iterator<Pair<K3, V>> {
         Iterator<Map.Entry<K3, V>> level3EntrySetIter = null;
 
@@ -578,5 +601,13 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
 
     public Iterator<Pair<K3, V>> iterator(K1 rootKey, K2 k2) {
         return new HashMap3LIterator3L(rootKey, k2);
+    }
+
+    public Spliterator<Pair<K3, V>> spliterator(K1 rootKey, K2 k2) {
+        return Spliterators.spliteratorUnknownSize(iterator(rootKey, k2), 0);
+    }
+
+    public Stream<Pair<K3, V>> stream(K1 rootKey, K2 k2) {
+        return StreamSupport.stream(spliterator(rootKey, k2), false);
     }
 }

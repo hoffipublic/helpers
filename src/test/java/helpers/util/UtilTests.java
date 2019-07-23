@@ -22,6 +22,54 @@ public class UtilTests {
     }
 
     public static Logger log = org.slf4j.LoggerFactory.getLogger(UtilTests.class);
+
+    @Test
+    public void readmeExamples() {
+        MapCloneable<String, Map<String, Map<String, String>>> rootMapPrototype;
+        MapCloneable<String, Map<String, String>> level2MapPrototype;
+        MapCloneable<String, String> level3MapPrototype;
+        rootMapPrototype = new TreeMapCloneable<>();
+        level2MapPrototype = new LinkedHashMapCloneable<>();
+        level3MapPrototype = new HashMapCloneable<>();
+
+        HashMap3L<String, String, String, String> h3 =
+                new HashMap3L<>(rootMapPrototype, level2MapPrototype, level3MapPrototype);
+
+        fillData3L(h3);
+
+        h3.stream().forEach(System.out::println);
+
+        System.out.println("======================================================".toString());
+
+        h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(System.out::println);
+
+        System.out.println("======================================================".toString());
+
+        h3.stream("r1").forEach(System.out::println);
+
+        System.out.println("======================================================".toString());
+
+        h3.stream("r1", "one").forEach(System.out::println);
+
+        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".toString());
+
+        for (Quadruple<String, String, String, String> quadruple : h3) {
+            System.out.println(quadruple.toString());
+        }
+
+        System.out.println("======================================================".toString());
+
+        for (Iterator<Triple<String, String, String>> iter = h3.iterator("r1"); iter.hasNext();) {
+            System.out.println(iter.next().toString());
+        }
+
+        System.out.println("======================================================".toString());
+
+        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "one"); iter.hasNext();) {
+            System.out.println(iter.next().toString());
+        }
+    }
+
     @Test
     public void hashMap2LTest() {
         MapCloneable<String, Map<String, String>> rootMapPrototype = new HashMapCloneable<>();
@@ -38,17 +86,17 @@ public class UtilTests {
         }
         assertEquals(sizesPerLevel.getLeft(), count);
 
-        log.debug("====  2L 'eins' HashMap2L  ===========================".toString());
+        log.debug("====  2L 'one' HashMap2L  ===========================".toString());
         count = 0;
-        for (Iterator<Pair<String, String>> iter = h2.iterator("eins"); iter.hasNext();) {
+        for (Iterator<Pair<String, String>> iter = h2.iterator("one"); iter.hasNext();) {
             count++;
             log.debug(iter.next().toString());
         }
         assertEquals(sizesPerLevel.getRight(), count);
 
-        log.debug("====  2L 'eins' HashMap2L conventional ==============".toString());
+        log.debug("====  2L 'one' HashMap2L conventional ==============".toString());
         count = 0;
-        for(Map.Entry<String, String> entry : h2.get("eins").entrySet()) {
+        for(Map.Entry<String, String> entry : h2.get("one").entrySet()) {
             count++;
             log.debug("{} : {}", entry.getKey(), entry.getValue());
         }
@@ -81,10 +129,10 @@ public class UtilTests {
         }
         assertEquals(sizesPerLevel.getLeft(), count);
 
-        log.debug("====  2L 'eins' TreeMap2L ============================".toString());
+        log.debug("====  2L 'one' TreeMap2L ============================".toString());
         count = 0;
         prevL2 = "";
-        for (Iterator<Pair<String, String>> iter = h2.iterator("eins"); iter.hasNext();) {
+        for (Iterator<Pair<String, String>> iter = h2.iterator("one"); iter.hasNext();) {
             count++;
             Pair<String, String> pair = iter.next();
             log.debug(pair.toString());
@@ -94,10 +142,10 @@ public class UtilTests {
         }
         assertEquals(sizesPerLevel.getRight(), count);
 
-        log.debug("====  2L 'eins' TreeMap2L conventional ===============".toString());
+        log.debug("====  2L 'one' TreeMap2L conventional ===============".toString());
         count = 0;
         prevL2 = "";
-        for (Map.Entry<String, String> entry : h2.get("eins").entrySet()) {
+        for (Map.Entry<String, String> entry : h2.get("one").entrySet()) {
             count++;
             Pair<String, String> pair = Pair.of(entry.getKey(), entry.getValue());
             log.debug("{} : {}", entry.getKey(), entry.getValue());
@@ -124,17 +172,17 @@ public class UtilTests {
         }
         assertEquals(sizesPerLevel.getLeft(), count);
 
-        log.debug("====  2L 'eins' LinkedHashMap2L ======================".toString());
+        log.debug("====  2L 'one' LinkedHashMap2L ======================".toString());
         count = 0;
-        for (Iterator<Pair<String, String>> iter = h2.iterator("eins"); iter.hasNext();) {
+        for (Iterator<Pair<String, String>> iter = h2.iterator("one"); iter.hasNext();) {
             count++;
             log.debug(iter.next().toString());
         }
         assertEquals(sizesPerLevel.getRight(), count);
 
-        log.debug("====  2L 'eins' LinkedHashMap2L conventional =========".toString());
+        log.debug("====  2L 'one' LinkedHashMap2L conventional =========".toString());
         count = 0;
-        for (Map.Entry<String, String> entry : h2.get("eins").entrySet()) {
+        for (Map.Entry<String, String> entry : h2.get("one").entrySet()) {
             count++;
             log.debug("{} : {}", entry.getKey(), entry.getValue());
         }
@@ -142,22 +190,60 @@ public class UtilTests {
     }
 
     private static Pair<Integer, Integer> fillData2L(HashMap2L<String, String, String> h2) {
-        h2.put("drei", "3", "drei");
+        h2.put("three", "3", "three");
         
-        h2.put("zwei", "2.2", "zwei.zwei");
-        h2.put("zwei", "2.1", "zwei.eins");
+        h2.put("two", "2.2", "two.two");
+        h2.put("two", "2.1", "two.one");
 
-        h2.put("eins", "1.55", "eins.fünfundfünfzig");
-        h2.put("eins", "1.51", "eins.einundfünfzig");
-        h2.put("eins", "1.3", "eins.drei");
-        h2.put("eins", "1.2", "eins.zwei");
-        h2.put("eins", "1.1", "eins.eins");
-        h2.put("eins", "1.4", "eins.vier");
+        h2.put("one", "1.55", "one.fiftyfive");
+        h2.put("one", "1.51", "one.fiftyone");
+        h2.put("one", "1.3", "one.three");
+        h2.put("one", "1.2", "one.two");
+        h2.put("one", "1.1", "one.one");
+        h2.put("one", "1.4", "one.vier");
 
-        // overall entries, entries for "eins"
+        // overall entries, entries for "one"
         return Pair.of(9, 6);
     }
 
+    @Test
+    public void TreeMap3LStreamTest() {
+        MapCloneable<String, Map<String, Map<String, String>>> rootMapPrototype = new TreeMapCloneable<>();
+        MapCloneable<String, Map<String, String>> level2MapPrototype = new TreeMapCloneable<>();
+        MapCloneable<String, String> level3MapPrototype = new TreeMapCloneable<>();
+        HashMap3L<String, String, String, String> h3 = new HashMap3L<>(rootMapPrototype, level2MapPrototype, level3MapPrototype);
+
+        Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3);
+
+        h3.stream().forEach(System.out::println);
+        System.out.println("======================================================".toString());
+        h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(System.out::println);
+
+    }
+
+    @Test
+    public void TreeMap3LStreamTest2L() {
+        MapCloneable<String, Map<String, Map<String, String>>> rootMapPrototype = new TreeMapCloneable<>();
+        MapCloneable<String, Map<String, String>> level2MapPrototype = new TreeMapCloneable<>();
+        MapCloneable<String, String> level3MapPrototype = new TreeMapCloneable<>();
+        HashMap3L<String, String, String, String> h3 = new HashMap3L<>(rootMapPrototype, level2MapPrototype, level3MapPrototype);
+
+        Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3);
+
+        h3.stream("r1").forEach(System.out::println);
+    }
+
+    @Test
+    public void TreeMap3LStreamTest3L() {
+        MapCloneable<String, Map<String, Map<String, String>>> rootMapPrototype = new TreeMapCloneable<>();
+        MapCloneable<String, Map<String, String>> level2MapPrototype = new TreeMapCloneable<>();
+        MapCloneable<String, String> level3MapPrototype = new TreeMapCloneable<>();
+        HashMap3L<String, String, String, String> h3 = new HashMap3L<>(rootMapPrototype, level2MapPrototype, level3MapPrototype);
+
+        Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3);
+
+        h3.stream("r1", "one").forEach(System.out::println);
+    }
 
     @Test
     public void hashMap3LTest() {
@@ -196,7 +282,7 @@ public class UtilTests {
             }
         }
         log.debug("==== 3L 'r1','r2' HashMap3L ==========================".toString());
-        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "eins"); iter.hasNext();) {
+        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "one"); iter.hasNext();) {
             log.debug(iter.next().toString());
         }
     }
@@ -315,10 +401,10 @@ public class UtilTests {
         }
         assertEquals(quad.getL3(), count);
 
-        log.debug("====  3L 'r1','eins' TreeMap3L =======================".toString());
+        log.debug("====  3L 'r1','one' TreeMap3L =======================".toString());
         count = 0;
         prevL3 = "";
-        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "eins"); iter.hasNext();) {
+        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "one"); iter.hasNext();) {
             count++;
             Pair<String, String> pair = iter.next();
             log.debug(pair.toString());
@@ -363,29 +449,29 @@ public class UtilTests {
                 log.debug("{} : {} : {}", outerEntry.getKey(), innerEntry.getKey(), innerEntry.getValue());
             }
         }
-        log.debug("====  3L 'r1','eins'  LinkedHashMap3L =================".toString());
-        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "eins"); iter.hasNext();) {
+        log.debug("====  3L 'r1','one'  LinkedHashMap3L =================".toString());
+        for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "one"); iter.hasNext();) {
             log.debug(iter.next().toString());
         }
     }
 
 
     private static Quadruple<Integer, Integer, Integer, Integer> fillData3L(HashMap3L<String, String, String, String> h3) {
-        h3.put("r2", "drei", "3", "drei");
+        h3.put("r2", "three", "3", "three");
 
-        h3.put("r2", "zwei", "2.2", "zwei.zwei");
-        h3.put("r2", "zwei", "2.1", "zwei.eins");
+        h3.put("r2", "two", "2.2", "two.two");
+        h3.put("r2", "two", "2.1", "two.one");
 
-        h3.put("r1", "eins", "1.55", "eins.fünfundfünfzig");
-        h3.put("r1", "eins", "1.51", "eins.einundfünfzig");
-        h3.put("r1", "zwei", "2.2", "zwei.zwei");
-        h3.put("r1", "eins", "1.3", "eins.drei");
-        h3.put("r2", "eins", "1.2", "eins.zwei");
-        h3.put("r1", "eins", "1.1", "eins.eins");
-        h3.put("r1", "eins", "1.4", "eins.vier");
-        h3.put("r1", "zwei", "2.11", "zwei.elf");
+        h3.put("r1", "one", "1.55", "one.fiftyfive");
+        h3.put("r1", "one", "1.51", "one.fififtyone");
+        h3.put("r1", "two", "2.2", "two.two");
+        h3.put("r1", "one", "1.3", "one.three");
+        h3.put("r2", "one", "1.2", "one.two"); // <-- "r2"!
+        h3.put("r1", "one", "1.1", "one.one");
+        h3.put("r1", "one", "1.4", "one.vier");
+        h3.put("r1", "two", "2.11", "two.elf");
 
-        // overallEntries, entriesOf "r1", entriesOf "r2", entriesOf "r1","eins" 
+        // overallEntries, entriesOf "r1", entriesOf "r2", entriesOf "r1","one" 
         return Quadruple.of(11, 7, 4, 5);
     }
 }
