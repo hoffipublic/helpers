@@ -1,3 +1,7 @@
+# hoffi's helpers
+
+## util
+
 Following examples show the usage of the 3-Leveled `HashMap3L<K1, K2, K3, V>` HashMap of HashMaps of HashMaps.
 
 There is also an implemenation of a 2-Leveled `HashMap2L<K1, K2, V>` HashMap of HashMaps.
@@ -23,16 +27,18 @@ boolean              containsKey(K1 k1, K2 k2, K3 k3);
 Map<K2, Map<K3, V>>  remove(K1 k1);
 Map<K3, V>           remove(K1 k1, K2 k2);
 V                    remove(K1 k1, K2 k2, K3 k3);
+V                    removeValue(K1 k1, K2 k2, K3 k3, V v);
 int                  size();
 int                  size(K1 k1);
 List<V>              getAllItems();
 List<V>              getAllItems(K1 k1);
 void                 clear();
 void                 clear(K1 k1);
+void                 clear(K1 k1, K2 k2);
 
 Iterator<Quadruple<K1, K2, K3, V>>    iterator()
 Spliterator<Quadruple<K1, K2, K3, V>> spliterator()
-Stream<Quadruple<K1, K2, K3, V>>	  stream()
+Stream<Quadruple<K1, K2, K3, V>>      stream()
 
 Iterator<Triple<K2, K3, V>>           iterator(K1 rootKey)
 Spliterator<Triple<K2, K3, V>>        spliterator(K1 rootKey)
@@ -80,7 +86,7 @@ mixed Maps three level (3L) HashMap of HashMap of HashMap using `stream()`</br>
         rootMapPrototype = new TreeMapCloneable<>();
         level2MapPrototype = new LinkedHashMapCloneable<>();
         level3MapPrototype = new HashMapCloneable<>();
-        
+
         // HashMap3L<rootKeysType, L2KeysType, L3KeysType, ValueType>
         HashMap3L<String, String, String, String> h3 = new HashMap3L<>(rootMapPrototype, level2MapPrototype, level3MapPrototype);
 
@@ -89,7 +95,7 @@ mixed Maps three level (3L) HashMap of HashMap of HashMap using `stream()`</br>
         h3.stream().forEach(System.out::println);
 
         System.out.println("======================================================".toString());
-        
+
         h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(System.out::println);
 
         System.out.println("======================================================".toString());
@@ -103,7 +109,7 @@ mixed Maps three level (3L) HashMap of HashMap of HashMap using `stream()`</br>
 
 result:
 
-```
+```text
     (r1,one,1.1,one.one)
     (r1,one,1.3,one.three)
     (r1,one,1.4,one.vier)
@@ -143,7 +149,6 @@ result:
 </br>
 mixed Maps three level (3L) HashMap of HashMap of HashMap using `iterator()`:
 
-
 ```java
         for (Quadruple<String, String, String, String> quadruple : h3) {
             log.debug(quadruple.toString());
@@ -164,7 +169,7 @@ mixed Maps three level (3L) HashMap of HashMap of HashMap using `iterator()`:
 
 result:
 
-```
+```text
     (r1,one,1.1,one.one)
     (r1,one,1.3,one.three)
     (r1,one,1.4,one.vier)
@@ -192,11 +197,15 @@ result:
     (1.51,one.fififtyone)
 ```
 
-</br>
-</br>
-</br>
-</br>
+There is also a `HashMap3LWithMeta` class which `extends HashMap3L` and allows to `metaPut(...)` metaKey/metaValue's for each key (doesn't matter on which level).
 
+You even can attach metaKey/metaValues's to values of the HashMap3L
+
+Also you can find keys (`findAll...ByMeta(...)`) which are in the HashMap3L which have a specific metakey or a specific metakey with a specific metaValue (`findAll...ByMetaValue(...)`).
+
+</br>
+</br>
+</br>
+</br>
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS` AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-

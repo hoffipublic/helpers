@@ -25,13 +25,13 @@ import helpers.tuple.Quadruple;
  */
 public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, V>> {
 
-    /** Map structure holding another Map structure to implement HashMap3L */
+    /** root Map structure holding other Map structures to implement HashMap3L */
     public Map<K1, Map<K2, Map<K3, V>>> rootMap;
     /**
      * prototypes of maps to clone from (for being able to use different Map implementation types)
      */
-    private MapCloneable<K2, Map<K3, V>> level2MapClonePrototype;
-    private MapCloneable<K3, V> level3MapClonePrototype;
+    protected MapCloneable<K2, Map<K3, V>> level2MapClonePrototype;
+    protected MapCloneable<K3, V> level3MapClonePrototype;
 
     /** Initializes the HashMap3L */
     public HashMap3L(MapCloneable<K1, Map<K2, Map<K3, V>>> rootMapClonePrototype,
@@ -53,8 +53,12 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
      *         mapping for key.
      */
     public V put(K1 k1, K2 k2, K3 k3, V v) {
-        Map<K3, V> l3Map = this.get(k1, k2);
+        Map<K3, V> l3Map = this.get(k1, k2); // initializes l2/l3-map
         return l3Map.put(k3, v);
+    }
+
+    public V put(Triple<K1, K2, K3> keys, V v) {
+        return put(keys.getLeft(), keys.getMiddle(), keys.getRight(), v);
     }
 
     /**
@@ -73,14 +77,14 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
     }
 
     /**
-     * returns level 2 Map (initializing it (and l1 also if needed) if non-existent yet)
+     * returns level 2 Map (initializing it (and also upto l1 if needed) if non-existent yet)
      * 
      * @param k1 key1 (super-key)
      * @param k2 key2 (sub-key)
      * @return existing or empty level 3 Map.
      */
     public Map<K3, V> get(K1 k1, K2 k2) {
-        Map<K2, Map<K3, V>> l2Map = this.get(k1);
+        Map<K2, Map<K3, V>> l2Map = this.get(k1); // initializes l2map
         Map<K3, V> l3Map = l2Map.get(k2);
         if (l3Map == null) {
             l3Map = (MapCloneable<K3, V>) level3MapClonePrototype.clone();
@@ -89,8 +93,13 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
         return l3Map;
     }
 
+    public Map<K3, V> get(Pair<K1, K2> keys) {
+        return get(keys.getLeft(), keys.getRight());
+    }
+
     /**
-     * Gets the value object for the specified (super)key K1, (sub)key K2 and (subsub)key K3
+     * Gets the value object for the specified (super)key K1, (sub)key K2 and (subsub)key K3</br>
+     * (initializing it (and also upto l1 if needed) if non-existent yet)
      * 
      * @param k1 key1 (super-key)
      * @param k2 key2 (sub-key)
@@ -100,6 +109,10 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
     public V get(K1 k1, K2 k2, K3 k3) {
         Map<K3, V> l3Map = this.get(k1, k2);
         return l3Map.get(k3);
+    }
+
+    public V get(Triple<K1, K2, K3> keys) {
+        return get(keys.getLeft(), keys.getMiddle(), keys.getRight());
     }
 
     /**
@@ -194,13 +207,11 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
      * @return <tt>true</tt> if value object present
      */
     public boolean containsKey(K1 k1, K2 k2) {
-        if (rootMap.containsKey(k1)) {
-            Map<K2, Map<K3, V>> l2Map = rootMap.get(k1);
-            if (l2Map != null) {
-                return l2Map.containsKey(k2);
-            }
-        }
-        return false;
+        return this.get(k1).containsKey(k2);
+    }
+
+    public boolean containsKey(Pair<K1, K2> keys) {
+        return containsKey(keys.getLeft(), keys.getRight());
     }
 
      /**
@@ -212,16 +223,11 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
      * @return <tt>true</tt> if value object present
      */
     public boolean containsKey(K1 k1, K2 k2, K3 k3) {
-        if (rootMap.containsKey(k1)) {
-            Map<K2, Map<K3, V>> l2Map = rootMap.get(k1);
-            if (l2Map != null) {
-                Map<K3, V> l3Map = l2Map.get(k2);
-                if (l3Map != null) {
-                    return l3Map.containsKey(k3);
-                }
-            }
-        }
-        return false;
+        return this.get(k1, k2).containsKey(k3);
+    }
+
+    public boolean containsKey(Triple<K1, K2, K3> keys) {
+            return containsKey(keys.getLeft(), keys.getMiddle(), keys.getRight());
     }
 
     /**
@@ -233,25 +239,24 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
      */
     // CAREFULL!! This might remove the contents of sub-map without user-knowledge
     public Map<K2, Map<K3, V>> remove(K1 k1) {
-        return rootMap.remove(k1);
+        return this.rootMap.remove(k1);
     }
 
     /**
-     * Removes the value object for the specified (super)key K1 and (sub)key K2
+     * Removes the value object (HashMap) for the specified (super)key K1 and (sub)key K2
      * 
      * @param k1 key1 (super-key)
      * @param k2 key2 (sub-key)
      * @return previous value associated with specified key, or <tt>null</tt> if there was no
      *         mapping for key.
      */
+    // CAREFULL!! This might remove the contents of sub-map without user-knowledge
     public Map<K3, V> remove(K1 k1, K2 k2) {
-        if (rootMap.containsKey(k1)) {
-            Map<K2, Map<K3, V>> l2Map = rootMap.get(k1);
-            if (l2Map != null) {
-                return l2Map.remove(k2);
-            }
-        }
-        return null;
+        return this.get(k1).remove(k2);
+    }
+
+    public Map<K3, V> remove(Pair<K1, K2> keys) {
+        return remove(keys.getLeft(), keys.getRight());
     }
 
     /**
@@ -264,16 +269,34 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
      *         mapping for key.
      */
     public V remove(K1 k1, K2 k2, K3 k3) {
-        if (rootMap.containsKey(k1)) {
-            Map<K2, Map<K3, V>> l2Map = rootMap.get(k1);
-            if (l2Map != null) {
-                Map<K3, V> l3Map = l2Map.get(k2);
-                if(l3Map != null) {
-                    return l3Map.remove(k3);
-                }
-            }
+        return this.get(k1, k2).remove(k3);
+    }
+
+    public V remove(Triple<K1, K2, K3> keys) {
+        return remove(keys.getLeft(), keys.getMiddle(), keys.getRight());
+    }
+    
+    /**
+     * Removes the value object for the specified Keys</br>
+     * only if the associated value object is equal to the given value object
+     * 
+     * @param k1 key1 (super-key)
+     * @param k2 key2 (sub-key)
+     * @param k3 key2 (subsub-key)
+     * @return previous value associated with specified key, or <tt>null</tt> if there was no
+     *         mapping for key.
+     */
+    public V removeValue(K1 k1, K2 k2, K3 k3, V v) {
+        Map<K3, V> l3Map = this.get(k1, k2);
+        V theValue = l3Map.get(k3);
+        if (v.equals(theValue)) {
+            return l3Map.remove(k3);
         }
         return null;
+    }
+
+    public V removeValue(Triple<K1, K2, K3> keys, V v) {
+        return removeValue(keys.getLeft(), keys.getMiddle(), keys.getRight(), v);
     }
 
     /**
@@ -337,7 +360,7 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
     }
 
     /**
-     * Clears the entire hash map
+     * clears the entire hash map
      */
     public void clear() {
         for (Map<K2, Map<K3, V>> l2Map : rootMap.values()) {
@@ -350,7 +373,7 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
     }
 
     /**
-     * Clears the entire hash map
+     * clears all level 2 maps (and their level3 maps) of given rootKey
      */
     public void clear(K1 k1) {
         Map<K2, Map<K3, V>> l2Map = this.get(k1);
@@ -358,6 +381,14 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
             l3Map.clear();
         }
         l2Map.clear();
+    }
+
+    /**
+     * clears all level 3 maps of given K1 and K2
+     */
+    public void clear(K1 k1, K2 k2) {
+        Map<K3, V> l3Map = this.get(k1, k2);
+        l3Map.clear();
     }
 
 

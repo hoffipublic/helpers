@@ -39,4 +39,22 @@ public class TreeMapCloneable<K, V> extends TreeMap<K, V> implements MapCloneabl
     public MapCloneable<K, V> clone() {
         return (MapCloneable<K, V>) super.clone();
     }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public MapCloneable<K, Map<K, V>> clone2() {
+        return (MapCloneable<K, Map<K, V>>) super.clone();
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public MapCloneable<K, Map<K, Map<K, V>>> clone3() {
+        return (MapCloneable<K, Map<K, Map<K, V>>>) super.clone();
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public MapCloneable<K, Map<K, Map<String, Map<K, V>>>> clone4() {
+        return (MapCloneable<K, Map<K, Map<String, Map<K, V>>>>) super.clone();
+    }
 }

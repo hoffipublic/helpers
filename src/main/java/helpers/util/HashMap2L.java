@@ -26,7 +26,7 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
     /** Map structure holding another Map structure to implement HashMap2L */
     public MapCloneable<K1, Map<K2, V>> rootMap;
     /** prototype of map to clone from (for being able to use different Map implementation types) */
-    private MapCloneable<K2, V> level2MapClonePrototype;
+    protected MapCloneable<K2, V> level2MapClonePrototype;
 
 
     /** Initializes the HashMap2L */
@@ -46,39 +46,37 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
      *         mapping for key.
      */
     public V put(K1 k1, K2 k2, V v) {
-        Map<K2, V> l2Map = null;
-        if (rootMap.containsKey(k1)) {
-            l2Map = rootMap.get(k1);
-        } else {
-            l2Map = (MapCloneable<K2, V>)level2MapClonePrototype.clone();
-            rootMap.put(k1, l2Map);
-        }
+        Map<K2, V> l2Map = this.get(k1); // initializes l2map
         return l2Map.put(k2, v);
     }
 
     /**
-     * Gets the value object for the specified (super)key K1 and (sub)key K2
+     * Gets the value object for the specified (super)key K1 and (sub)key K2</br>
+     * (initializing it if non-existent yet)
      * 
      * @param k1 key1 (super-key)
      * @param k2 key2 (sub-key)
      * @return value object if exists or <tt>null</tt> if does not exists
      */
     public V get(K1 k1, K2 k2) {
-        if (rootMap.containsKey(k1)) {
-            Map<K2, V> l2Map = rootMap.get(k1);
-            return l2Map.get(k2);
-        }
-        return null;
+        Map<K2, V> l2Map = this.get(k1); // initializes l2map
+        return l2Map.get(k2);
     }
 
     /**
-     * Gets the value object for the specified (super)key K1
+     * Gets the value object for the specified (super)key K1</br>
+     * (initializing it if non-existent yet)
      * 
      * @param k1 key1 (super-key)
      * @return HashMap structure contains the values for the key k1 if exists or <tt>null</tt> if
      *         does not exists
      */
     public Map<K2, V> get(K1 k1) {
+        Map<K2, V> l2Map = rootMap.get(k1);
+        if (l2Map == null) {
+            l2Map = level2MapClonePrototype.clone();
+            rootMap.put(k1, l2Map);
+        }
         return rootMap.get(k1);
     }
 
@@ -123,7 +121,7 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
      */
     public boolean containsKey(K1 k1, K2 k2) {
         if (rootMap.containsKey(k1)) {
-            Map<K2, V> l2Map = rootMap.get(k1);
+            Map<K2, V> l2Map = this.get(k1);
             return l2Map.containsKey(k2);
         }
         return false;
@@ -149,8 +147,28 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
      */
     public V remove(K1 k1, K2 k2) {
         if (rootMap.containsKey(k1)) {
-            Map<K2, V> l2Map = rootMap.get(k1);
+            Map<K2, V> l2Map = this.get(k1);
             return l2Map.remove(k2);
+        }
+        return null;
+    }
+
+    /**
+     * Removes the value object for the specified (super)key K1 and (sub)key K2</br>
+     * only if the current associated value is equal to the given value-object
+     * 
+     * @param k1 key1 (super-key)
+     * @param k2 key2 (sub-key)
+     * @param V value-object
+     * @return previous value associated with specified key, or <tt>null</tt> if there was no
+     *         mapping for key.
+     */
+    public V removeValue(K1 k1, K2 k2, V v) {
+        if (rootMap.containsKey(k1)) {
+            Map<K2, V> l2Map = this.get(k1);
+            if(v.equals(l2Map.get(k2))) {
+                return l2Map.remove(k2);
+            }
         }
         return null;
     }

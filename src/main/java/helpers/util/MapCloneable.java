@@ -7,6 +7,12 @@ public interface MapCloneable<K, V> extends Map<K, V> {
 
     MapCloneable<K, V> clone();
 
+    MapCloneable<K, Map<K, V>> clone2();
+
+    MapCloneable<K, Map<K, Map<K, V>>> clone3();
+    
+    MapCloneable<K, Map<K, Map<String, Map<K, V>>>> clone4();
+
 
     boolean isEmpty();
 

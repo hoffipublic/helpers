@@ -37,36 +37,36 @@ public class UtilTests {
 
         fillData3L(h3);
 
-        h3.stream().forEach(System.out::println);
+        h3.stream().forEach(t -> log.debug(t.toString()));
 
-        System.out.println("======================================================".toString());
+        log.debug("======================================================".toString());
 
-        h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(System.out::println);
+        h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(t -> log.debug(t.toString()));
 
-        System.out.println("======================================================".toString());
+        log.debug("======================================================".toString());
 
-        h3.stream("r1").forEach(System.out::println);
+        h3.stream("r1").forEach(t -> log.debug(t.toString()));
 
-        System.out.println("======================================================".toString());
+        log.debug("======================================================".toString());
 
-        h3.stream("r1", "one").forEach(System.out::println);
+        h3.stream("r1", "one").forEach(t -> log.debug(t.toString()));
 
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".toString());
+        log.debug("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".toString());
 
         for (Quadruple<String, String, String, String> quadruple : h3) {
-            System.out.println(quadruple.toString());
+            log.debug(quadruple.toString());
         }
 
-        System.out.println("======================================================".toString());
+        log.debug("======================================================".toString());
 
         for (Iterator<Triple<String, String, String>> iter = h3.iterator("r1"); iter.hasNext();) {
-            System.out.println(iter.next().toString());
+            log.debug(iter.next().toString());
         }
 
-        System.out.println("======================================================".toString());
+        log.debug("======================================================".toString());
 
         for (Iterator<Pair<String, String>> iter = h3.iterator("r1", "one"); iter.hasNext();) {
-            System.out.println(iter.next().toString());
+            log.debug(iter.next().toString());
         }
     }
 
@@ -215,9 +215,9 @@ public class UtilTests {
 
         Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3);
 
-        h3.stream().forEach(System.out::println);
-        System.out.println("======================================================".toString());
-        h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(System.out::println);
+        h3.stream().forEach(t -> log.debug(t.toString()));
+        log.debug("======================================================".toString());
+        h3.stream().filter(i -> i.getRoot().equals("r1")).forEach(t -> log.debug(t.toString()));
 
     }
 
@@ -230,7 +230,7 @@ public class UtilTests {
 
         Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3);
 
-        h3.stream("r1").forEach(System.out::println);
+        h3.stream("r1").forEach(t -> log.debug(t.toString()));
     }
 
     @Test
@@ -242,7 +242,7 @@ public class UtilTests {
 
         Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3);
 
-        h3.stream("r1", "one").forEach(System.out::println);
+        h3.stream("r1", "one").forEach(t -> log.debug(t.toString()));
     }
 
     @Test
