@@ -21,20 +21,16 @@ public class UtilEmptyTests {
     static MapCloneable<String, String> m1Prototype;
     static MapCloneable<String, Map<String, String>> m2Prototype;
     static MapCloneable<String, Map<String, Map<String, String>>> m3Prototype;
-    static MapCloneable<String, Map<String, Map<String, Map<String, String>>>> m4Prototype;
-    static MapCloneable<String, Map<String, Map<String, Map<String, Map<String, String>>>>> m5Prototype;
-
 
     static {
         // rootLogger.setLevel(Level.DEBUG);
         rootLogger.setLevel(Level.INFO);
 
-        m1Prototype = new TreeMapCloneable<>();
+        m1Prototype = new HashMapCloneable<>();
         m2Prototype = new LinkedHashMapCloneable<>();
-        m3Prototype = new HashMapCloneable<>();
-        m4Prototype = new TreeMapCloneable<>();
-        m5Prototype = new LinkedHashMapCloneable<>();
+        m3Prototype = new TreeMapCloneable<>();
     }
+
     @Test
     public void emptyTests_hashMap2LTest() {
         String ls;
@@ -302,9 +298,11 @@ public class UtilEmptyTests {
     // }
 
     private static HashMap3LWithMeta<String, String, String, String, String, String> h3m() {
-        return new HashMap3LWithMetaStringKey<>(
-                    m3Prototype, m2Prototype, m1Prototype,  // maps for real values
-                    m1Prototype, // maps for meta values on all levels
-                    m5Prototype, m4Prototype, m3Prototype, m2Prototype); // maps for meta values on values
+        return new HashMap3LWithMetaSameKeys<String, String, String>(
+                        new HashMapCloneableForMeta<>(),
+                        new LinkedHashMapCloneableForMeta<>(),
+                        new TreeMapCloneableForMeta<>(),
+                        new TreeMapCloneableForMeta<>()
+                    );
     }
 }

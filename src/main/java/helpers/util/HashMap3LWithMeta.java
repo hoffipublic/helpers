@@ -23,7 +23,7 @@ public class HashMap3LWithMeta<K1, K2, K3, V, MK, MV> extends HashMap3L<K1, K2, 
     protected MapCloneable<V, Map<MK, MV>> metaValuesMapClonePrototype;
     protected MapCloneable<MK, MV> metaMapsClonePrototype;
 
-    /** protected constructor for subtype with only string keys for metadata */
+    /** protected constructor in support of subtyping of this*/
     protected HashMap3LWithMeta(
         MapCloneable<K1, Map<K2, Map<K3, V>>> rootMapClonePrototype,
         MapCloneable<K2, Map<K3, V>> level2MapClonePrototype,

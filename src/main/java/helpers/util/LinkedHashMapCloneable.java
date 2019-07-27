@@ -60,28 +60,4 @@ public class LinkedHashMapCloneable<K, V> extends LinkedHashMap<K, V>
     public MapCloneable<K, Map<K, Map<K, Map<K, V>>>> clone4() {
         return (MapCloneable<K, Map<K, Map<K, Map<K, V>>>>) super.clone();
     }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public MapCloneable<V, Map<K, K>> clone2v() {
-        return (MapCloneable<V, Map<K, K>>) super.clone();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public MapCloneable<K, Map<V, Map<K, K>>> clone3v() {
-        return (MapCloneable<K, Map<V, Map<K, K>>>) super.clone();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public MapCloneable<K, Map<K, Map<V, Map<K, K>>>> clone4v() {
-        return (MapCloneable<K, Map<K, Map<V, Map<K, K>>>>) super.clone();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public MapCloneable<K, Map<K, Map<K, Map<V, Map<K, K>>>>> clone5v() {
-        return (MapCloneable<K, Map<K, Map<K, Map<V, Map<K, K>>>>>) super.clone();
-    }
 }

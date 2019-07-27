@@ -193,41 +193,41 @@ public class UtilWithMetaTests {
     }
 
 
-    private static Quadruple<Integer, Integer, Integer, Integer> fillData3L(HashMap3LWithMeta<String, String, String, String, String, String> h3) {
-        h3.put("r2", "three", "3", "three");
-            h3.metaPut("r2", "mkToFind", "mkToFindValue_yes");
-            h3.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.1", "mr1.three.3.three.1");
-            h3.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.2", "mr1.three.3.three.2");
-            h3.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.3", "mr1.three.3.three.3");
-        h3.put("r2", "two", "2.2", "two.two");
-        h3.put("r2", "two", "2.1", "two.one");
+    private static Quadruple<Integer, Integer, Integer, Integer> fillData3L(HashMap3LWithMeta<String, String, String, String, String, String> h3m) {
+        h3m.put("r2", "three", "3", "three");
+            h3m.metaPut("r2", "mkToFind", "mkToFindValue_yes");
+            h3m.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.1", "mr1.three.3.three.1");
+            h3m.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.2", "mr1.three.3.three.2");
+            h3m.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.3", "mr1.three.3.three.3");
+        h3m.put("r2", "two", "2.2", "two.two");
+        h3m.put("r2", "two", "2.1", "two.one");
 
-        h3.put("r1", "one", "1.55", "one.fiftyfive");
-            h3.metaPut("r1", "mk1", "m1Value");
-        h3.put("r1", "one", "1.51", "one.fififtyone");
-            h3.metaPut("r1", "one", "mk1.one", "m1.one_Value");
-        h3.put("r1", "two", "2.2", "two.two");
-            h3.metaPut("r1", "two", "2.2", "mk1.two.2.2", "m1.two.2.2_Value");
-            h3.metaPut("r1", "two", "2.2", "mkToFind", "mkToFindValue_yes");
-        h3.put("r1", "one", "1.3", "one.three");
-            h3.metaPut("r1", "mkr1.2", "mr1.r1.2_Value");
-            h3.metaPut("r1", "mkr1.1", "mr1.r1.1_Value");
-            h3.metaPut("r1", "mkr1.3", "mr1.r1.3_Value");
-            h3.metaPut("r1", "one", "mkr1.one.1.3", "mr1.one.1.3_Value");
-            h3.metaPut("r1", "one", "mkr1.one.1.2", "mr1.one.1.2_Value");
-            h3.metaPut("r1", "one", "mkr1.one.1.1", "mr1.one.1.1_Value");
-            h3.metaPut("r1", "one", "1.3", "mkr1.one.1.3.3", "mr1.one.1.3.3_Value");
-            h3.metaPut("r1", "one", "1.3", "mkr1.one.1.3.1", "mr1.one.1.3.1_Value");
-            h3.metaPut("r1", "one", "1.3", "mkr1.one.1.3.2", "mr1.one.1.3.2_Value");
-            h3.metaPut("r1", "one", "1.3", "mkToFind", "mkToFindValue_yes");
-            h3.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.3", "mr1.one.1.3.one.three.3_Value");
-            h3.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.2", "mr1.one.1.3.one.three.2_Value");
-            h3.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
-            h3.metaPut("r1", "one", "1.3", "one.three", "mkToFind", "mkToFindValue_r1.other");
-        h3.put("r2", "one", "1.2", "one.two"); // <-- "r2"!
-        h3.put("r1", "one", "1.1", "one.one");
-        h3.put("r1", "one", "1.4", "one.vier");
-        h3.put("r1", "two", "2.11", "two.elf");
+        h3m.put("r1", "one", "1.55", "one.fiftyfive");
+            h3m.metaPut("r1", "mk1", "m1Value");
+        h3m.put("r1", "one", "1.51", "one.fififtyone");
+            h3m.metaPut("r1", "one", "mk1.one", "m1.one_Value");
+        h3m.put("r1", "two", "2.2", "two.two");
+            h3m.metaPut("r1", "two", "2.2", "mk1.two.2.2", "m1.two.2.2_Value");
+            h3m.metaPut("r1", "two", "2.2", "mkToFind", "mkToFindValue_yes");
+        h3m.put("r1", "one", "1.3", "one.three");
+            h3m.metaPut("r1", "mkr1.2", "mr1.r1.2_Value");
+            h3m.metaPut("r1", "mkr1.1", "mr1.r1.1_Value");
+            h3m.metaPut("r1", "mkr1.3", "mr1.r1.3_Value");
+            h3m.metaPut("r1", "one", "mkr1.one.1.3", "mr1.one.1.3_Value");
+            h3m.metaPut("r1", "one", "mkr1.one.1.2", "mr1.one.1.2_Value");
+            h3m.metaPut("r1", "one", "mkr1.one.1.1", "mr1.one.1.1_Value");
+            h3m.metaPut("r1", "one", "1.3", "mkr1.one.1.3.3", "mr1.one.1.3.3_Value");
+            h3m.metaPut("r1", "one", "1.3", "mkr1.one.1.3.1", "mr1.one.1.3.1_Value");
+            h3m.metaPut("r1", "one", "1.3", "mkr1.one.1.3.2", "mr1.one.1.3.2_Value");
+            h3m.metaPut("r1", "one", "1.3", "mkToFind", "mkToFindValue_yes");
+            h3m.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.3", "mr1.one.1.3.one.three.3_Value");
+            h3m.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.2", "mr1.one.1.3.one.three.2_Value");
+            h3m.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
+            h3m.metaPut("r1", "one", "1.3", "one.three", "mkToFind", "mkToFindValue_r1.other");
+        h3m.put("r2", "one", "1.2", "one.two"); // <-- "r2"!
+        h3m.put("r1", "one", "1.1", "one.one");
+        h3m.put("r1", "one", "1.4", "one.vier");
+        h3m.put("r1", "two", "2.11", "two.elf");
 
         // overallEntries, entriesOf "r1", entriesOf "r2", entriesOf "r1","one" 
         return Quadruple.of(11, 7, 4, 5);
@@ -235,17 +235,17 @@ public class UtilWithMetaTests {
 
 
     // private static HashMap3LWithMeta<String, String, String, String, String, String> h3m() {
-    // return new HashMap3LWithMeta<>(m3Prototype, m2Prototype, m1Prototype, // maps for real values
-    // m1Prototype, // metadata maps
-    // m2Prototype, // rootKey K1 metadata
-    // m3Prototype, m2Prototype, // level2 K2 metadata
-    // m4Prototype, m3Prototype, m2Prototype, // level 3 K3 metadata
-    // m5Prototype, m4Prototype, m3Prototype, m2Prototype); // values metadata
+    //     return new HashMap3LWithMeta<>(
+    //                m3Prototype, m2Prototype, m1Prototype, // maps for real values
+    //                m1Prototype, // metadata maps
+    //                m2Prototype, // rootKey K1 metadata
+    //                m3Prototype, m2Prototype, // level2 K2 metadata
+    //                m4Prototype, m3Prototype, m2Prototype, // level 3 K3 metadata
+    //                m5Prototype, m4Prototype, m3Prototype, m2Prototype
+    //     ); // values metadata
     // }
 
     private static HashMap3LWithMeta<String, String, String, String, String, String> h3m() {
-        return new HashMap3LWithMetaStringKey<>(m3Prototype, m2Prototype, m1Prototype, // maps for real values
-                m1Prototype, // maps for meta values on all levels
-                m5Prototype, m4Prototype, m3Prototype, m2Prototype); // maps for meta values on values
+        return new HashMap3LWithMetaSameKeys<String, String, String>(new TreeMapCloneableForMeta<String, String, String>());
     }
 }

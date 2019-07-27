@@ -21,9 +21,4 @@ public interface MapCloneable<K, V> extends Map<K, V> {
     MapCloneable<K, Map<K, V>> clone2();
     MapCloneable<K, Map<K, Map<K, V>>> clone3();
     MapCloneable<K, Map<K, Map<K, Map<K, V>>>> clone4();
-
-    MapCloneable<V, Map<K,K>> clone2v();
-    MapCloneable<K, Map<V, Map<K, K>>> clone3v();
-    MapCloneable<K ,Map<K, Map<V, Map<K,K>>>> clone4v();
-    MapCloneable<K, Map<K, Map<K, Map<V, Map<K, K>>>>> clone5v();
 }
