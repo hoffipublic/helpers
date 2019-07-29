@@ -4,10 +4,15 @@ buildscript {
     ext {
         versions = new JsonSlurper().parseFile(rootProject.file('dependencies.json'), 'UTF-8')
         v = {  x -> versions.latest.default[x] }
+        vp = { x -> versions.latest.plugin[x] }
     }
 
     repositories {
         jcenter()
+    }
+
+    dependencies {
+        classpath "org.junit.platform:junit-platform-gradle-plugin:${vp('junitJupiterPluginVersion')}"
     }
 }
 
@@ -15,6 +20,8 @@ plugins {
     id 'java'
     id 'application'
 }
+
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 ext {
     group = "yourArtefactGroup"
@@ -46,6 +53,10 @@ test {
     testLogging {
         events "PASSED", "FAILED", "SKIPPED" //, "STARTED"
     }
+}
+
+junitPlatformTest {
+    enableAssertions = true
 }
 
 jar {

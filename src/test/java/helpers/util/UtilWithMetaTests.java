@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Disabled;
@@ -147,7 +149,8 @@ public class UtilWithMetaTests {
     public void hashMapWithMeta3LTest() {
         HashMap3LWithMeta<String, String, String, String, String, String> h3m;
         h3m = h3m();
-        Quadruple<Integer, Integer, Integer, Integer> quad =  fillData3L(h3m);
+        Quadruple<Integer, Quadruple<Integer, Integer, Integer, Integer>, Quadruple<Integer, Integer, Integer, Integer>, Integer>
+            quad =  fillData3L(h3m);
 
         String s = h3m.metaGet("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
         assertEquals("mr1.one.1.3.one.three.1_Value", s);
@@ -192,8 +195,25 @@ public class UtilWithMetaTests {
         }
     }
 
+    @Test
+    public void hashMapWithMeta_IteratorTest() {
+        HashMap3LWithMeta<String, String, String, String, String, String> h3m;
+        h3m = h3m();
+        Quadruple<Integer, Quadruple<Integer, Integer, Integer, Integer>, Quadruple<Integer, Integer, Integer, Integer>, Integer>
+            quad = fillData3L(h3m);
 
-    private static Quadruple<Integer, Integer, Integer, Integer> fillData3L(HashMap3LWithMeta<String, String, String, String, String, String> h3m) {
+        int count = 0;
+        for(Iterator<Object[]> iter = h3m.iteratorMeta(); iter.hasNext();) {
+            count++;
+            System.out.println(Arrays.stream(iter.next()).map(x -> x == null ? "" : x).map(Object::toString).collect(Collectors.joining(",", "(", ")")));
+        }
+        assertEquals(quad.getRoot(), count, "iteratorMeta()");
+    }
+
+
+    private static Quadruple<Integer, Quadruple<Integer, Integer, Integer, Integer>, Quadruple<Integer, Integer, Integer, Integer>, Integer>
+        fillData3L(HashMap3LWithMeta<String, String, String, String, String, String> h3m)
+    {
         h3m.put("r2", "three", "3", "three");
             h3m.metaPut("r2", "mkToFind", "mkToFindValue_yes");
             h3m.metaPut("r2", "three", "3", "three", "mkr1.three.3.three.1", "mr1.three.3.three.1");
@@ -225,12 +245,16 @@ public class UtilWithMetaTests {
             h3m.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
             h3m.metaPut("r1", "one", "1.3", "one.three", "mkToFind", "mkToFindValue_r1.other");
         h3m.put("r2", "one", "1.2", "one.two"); // <-- "r2"!
+            h3m.metaPut("r2", "one", "1.2", "one.two", "special", "root r2");
         h3m.put("r1", "one", "1.1", "one.one");
         h3m.put("r1", "one", "1.4", "one.vier");
         h3m.put("r1", "two", "2.11", "two.elf");
 
-        // overallEntries, entriesOf "r1", entriesOf "r2", entriesOf "r1","one" 
-        return Quadruple.of(11, 7, 4, 5);
+        // overallEntries,
+        // Quadruple(entries on root,        entries on level2,             entrie on level 3,                     entries on level v),
+        // Quadruple(entries on root("r1"), entries on level2("r1", "one"), entries on level3("r1", "one", "1.3"), entries on levelV("r1", "one", "1.3", "one.three")) 
+        // entries on "r2", "one", "1.2" "one.two"
+        return Quadruple.of(23, Quadruple.of(5, 4, 6, 8), Quadruple.of(4, 4, 4, 4), 1);
     }
 
 

@@ -1,10 +1,12 @@
 package helpers.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import helpers.tuple.Quadruple;
@@ -687,6 +689,149 @@ public class HashMap3LWithMeta<K1, K2, K3, V, MK, MV> extends HashMap3L<K1, K2, 
         }
         return resultList;
     }
+
+
+    // ======= iterators ======================================================
+    // ======= for iterating the individual key levels ========================
+    // ======= use the iterators of the public fields of this class directly ==
+    // ========================================================================
+
+    class HashMap3LWithMetaIterator implements Iterator<Object[]> {
+        Iterator<Triple<K1, MK, MV>> rootIter = HashMap3LWithMeta.this.metaForRoot.iterator();
+        Iterator<Quadruple<K1, K2, MK, MV>> level2Iter = HashMap3LWithMeta.this.metaForLevel2.iterator();
+        Iterator<Quadruple<K1, K2, K3, Map<MK, MV>>> level3Iter = HashMap3LWithMeta.this.metaForLevel3.iterator();
+        Iterator<Entry<MK, MV>> level3EntriesIter = null;
+        Iterator<Quadruple<K1, K2, K3, Map<V, Map<MK, MV>>>> levelVIter = HashMap3LWithMeta.this.metaForValues.iterator();
+        Iterator<Entry<V, Map<MK, MV>>> levelVMapIter = null;
+        Iterator<Entry<MK, MV>> levelVEntriesIter = null;
+
+        Object[] next = null; // next entry to return
+        Object[] current = null; // current entry
+
+        HashMap3LWithMetaIterator() {
+            if(rootIter.hasNext()) {
+                Triple<K1, MK, MV> rootMeta = rootIter.next();
+                next = new Object[] {rootMeta.getLeft(), rootMeta.getMiddle(), rootMeta.getRight(), null, null, null};
+            } else {
+                if(level2Iter.hasNext()) {
+                    Quadruple<K1, K2, MK, MV> level2Meta = level2Iter.next();
+                    next = new Object[] {level2Meta.getRoot(), level2Meta.getL2(), level2Meta.getL3(), level2Meta.getLeaf(), null, null};
+                } else {
+                    Object[] level3Next = level3Next();
+                    if (level3Next != null) {
+                        next = level3Next;
+                    } else {
+                        Object[] levelVNext = levelVNext();
+                        if (levelVNext != null) {
+                            next = levelVNext;
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override
+        public Object[] next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Object[] toReturn = next; // new next will be computed now ...
+            current = next;
+            next = null;
+
+            if (rootIter.hasNext()) {
+                Triple<K1, MK, MV> rootMeta = rootIter.next();
+                next = new Object[] {rootMeta.getLeft(), rootMeta.getMiddle(), rootMeta.getRight(), null, null, null};
+            }
+            if ((next == null)  && (level2Iter.hasNext())) {
+                Quadruple<K1, K2, MK, MV> level2Meta = level2Iter.next();
+                next = new Object[] {level2Meta.getRoot(), level2Meta.getL2(), level2Meta.getL3(), level2Meta.getLeaf(), null, null};
+            }
+            if ((next == null)  && (level3EntriesIter != null)) {
+                Object[] level3Next = level3Next();
+                if (level3Next != null) {
+                    next = level3Next;
+                }
+            }
+            if ((next == null) && (level3Iter.hasNext())) {
+
+            }
+            if ((next == null)  && (levelVEntriesIter.hasNext())) {
+                Entry<MK, MV> levelVMetaEntry = levelVEntriesIter.next();
+                next = new Object[] {current[0], current[1], current[2], current[3], levelVMetaEntry.getKey(), levelVMetaEntry.getValue()};
+            }
+            if ((next == null) && (levelVMapIter.hasNext())) {
+
+            }
+            if (next == null) {
+                Object[] levelVNext = levelVNext();
+                if (levelVNext != null) {
+                    next = levelVNext;
+                }
+            }
+
+            return toReturn;
+        }
+
+        private Object[] level3Next() {
+            Quadruple<K1, K2, K3, Map<MK, MV>> level3Meta = null;
+            // first (if not null) iterate Map<MK, MV>
+            // ...
+            // THEN iterate to next K3
+            //
+            if (level3Iter.hasNext()) {
+                level3Meta = level3Iter.next();
+            }
+            if ((level3Meta != null) && !level3Meta.getLeaf().isEmpty()) {
+                level3EntriesIter = level3Meta.getLeaf().entrySet().iterator();
+                Entry<MK, MV> level3MetaEntry = level3EntriesIter.next();
+                return new Object[] {level3Meta.getRoot(), level3Meta.getL2(), level3Meta.getL3(),
+                        level3MetaEntry.getKey(), level3MetaEntry.getValue(), null};
+            }
+            return null;
+        }
+
+        private Object[] levelVNext() {
+            // iterate  Map<V, Map<MK, MV>>>
+            //
+            Quadruple<K1, K2, K3, Map<V, Map<MK, MV>>> levelVMetaMap = null;
+            if (levelVIter.hasNext()) {
+                levelVMetaMap = levelVIter.next();
+            }
+            if ((levelVMetaMap != null) && !levelVMetaMap.getLeaf().isEmpty()) {
+                levelVMapIter = levelVMetaMap.getLeaf().entrySet().iterator();
+                Entry<V, Map<MK, MV>> levelVMetaMapEntry = levelVMapIter.next();
+                if ((levelVMetaMapEntry.getValue() != null)
+                        && (!levelVMetaMapEntry.getValue().isEmpty())) {
+                    levelVEntriesIter = levelVMetaMapEntry.getValue().entrySet().iterator();
+                    Entry<MK, MV> levelVMetaEntry = levelVEntriesIter.next();
+                    return new Object[] {levelVMetaMap.getRoot(), levelVMetaMap.getL2(),
+                            levelVMetaMap.getL3(), levelVMetaMapEntry.getKey(),
+                            levelVMetaEntry.getKey(), levelVMetaEntry.getValue()};
+                }
+            }
+            return null;
+        }
+
+
+        public final void remove() {
+            throw new RuntimeException("implementation not possible, sorry!");
+        }
+    }
+
+    public Iterator<Object[]> iteratorMeta() {
+        return new HashMap3LWithMetaIterator();
+    }
+
+    public Iterator<Object[]> iteratorMetaReverse() {
+        throw new NotImplementedException("XXX sorry");
+    }
+
 
     // ========================================================================
     // ====  Override parent methods to deal with Meta-Data accordingly  ======
