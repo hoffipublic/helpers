@@ -1,6 +1,7 @@
 package helpers.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,7 +9,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Disabled;
@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import helpers.tuple.Quadruple;
+import helpers.tuple.Sextuple;
 
 public class UtilWithMetaTests {
 
@@ -152,9 +153,10 @@ public class UtilWithMetaTests {
         Quadruple<Integer, Quadruple<Integer, Integer, Integer, Integer>, Quadruple<Integer, Integer, Integer, Integer>, Integer>
             quad =  fillData3L(h3m);
 
+        boolean b;
         String s = h3m.metaGet("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
         assertEquals("mr1.one.1.3.one.three.1_Value", s);
-        s = h3m.metaRemove("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
+        s = h3m.metaRemoveKey("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
         String s2 = h3m.metaGet("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
         assertEquals("mr1.one.1.3.one.three.1_Value", s);
         assertNull(s2);
@@ -162,36 +164,48 @@ public class UtilWithMetaTests {
         assertEquals("m1Value", s);
         s = h3m.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
         assertNull(s);
-        s = h3m.metaRemoveValue("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value_different");
-        assertNull(s);
+        b = h3m.metaRemoveValue("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value_different");
+        assertFalse(b);
         s = h3m.metaGet("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
         assertEquals("mr1.one.1.3.one.three.1_Value", s);
-        s = h3m.metaRemoveValue("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
-        assertEquals("mr1.one.1.3.one.three.1_Value", s);
+        b = h3m.metaRemoveValue("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
+        assertTrue(b);
         s = h3m.metaGet("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1");
         assertNull(s);
         s = h3m.metaPut("r1", "one", "1.3", "one.three", "mkr1.one.1.3.one.three.1", "mr1.one.1.3.one.three.1_Value");
 
-
+        int count = 0;
         log.debug("====  forEach HashMap3L ==============================".toString());
         for (Quadruple<String, String, String, String> quadruple : h3m) {
             log.debug(quadruple.toString());
+            count++;
         }
+        assertEquals(11, count);
+        count = 0;
         log.debug("====  findAllInRootByMeta HashMap3L ==============================".toString());
         for (String mv : h3m.findAllInRootByMeta("mkToFind")) {
             log.debug(mv.toString());
+            assertTrue(Arrays.asList("r2").contains(mv));
+        }
+        log.debug("====  findAllInLevel2ByMeta HashMap3L =============================".toString());
+        for (Pair<String, String> p : h3m.findAllInLevel2ByMeta("mkToFind")) {
+            log.debug(p.toString());
+            assertTrue(Arrays.asList("(r1,one)").contains(p.toString()));
         }
         log.debug("====  findAllInLevel3ByMeta HashMap3L =============================".toString());
         for (Triple<String, String, String> t : h3m.findAllInLevel3ByMeta("mkToFind")) {
             log.debug(t.toString());
+            assertTrue(Arrays.asList("(r1,one,1.3)", "(r1,two,2.2)").contains(t.toString()));
         }
         log.debug("====  findAllInAllByMeta HashMap3L ================================".toString());
         for (Quadruple<String, String, String, String> q : h3m.findAllInAllByMeta("mkToFind")) {
             log.debug(q.toString());
+            assertTrue(Arrays.asList("(r2,null,null,null)", "(r1,one,null,null)", "(r1,one,1.3,null)", "(r1,two,2.2,null)", "(r1,one,1.3,one.three)").contains(q.toString()));
         }
         log.debug("====  findAllInAllByMetaValue HashMap3L ===========================".toString());
         for (Quadruple<String, String, String, String> q : h3m.findAllInAllByMetaValue("mkToFind", "mkToFindValue_yes")) {
             log.debug(q.toString());
+            assertTrue(Arrays.asList("(r2,null,null,null)", "(r1,one,null,null)", "(r1,one,1.3,null)", "(r1,two,2.2,null)").contains(q.toString()));
         }
     }
 
@@ -203,9 +217,18 @@ public class UtilWithMetaTests {
             quad = fillData3L(h3m);
 
         int count = 0;
-        for(Iterator<Object[]> iter = h3m.iteratorMeta(); iter.hasNext();) {
+        log.debug("====  iteratorMetaBreadthFirst ====================================".toString());
+        for(Iterator<Sextuple<String, String, String, String, String, String>> iter = h3m.iteratorMetaBreadthFirst(); iter.hasNext();) {
             count++;
-            System.out.println(Arrays.stream(iter.next()).map(x -> x == null ? "" : x).map(Object::toString).collect(Collectors.joining(",", "(", ")")));
+            log.debug(iter.next().toString().replaceAll(",null", ","));
+        }
+        assertEquals(quad.getRoot(), count, "iteratorMeta()");
+        
+        log.debug("====  iteratorMetaDepthFirst ======================================".toString());
+        count = 0;
+        for(Iterator<Sextuple<String, String, String, String, String, String>> iter = h3m.iteratorMetaDepthFirst(); iter.hasNext();) {
+            count++;
+            log.debug(iter.next().toString().replaceAll(",null", ","));
         }
         assertEquals(quad.getRoot(), count, "iteratorMeta()");
     }
@@ -226,6 +249,7 @@ public class UtilWithMetaTests {
             h3m.metaPut("r1", "mk1", "m1Value");
         h3m.put("r1", "one", "1.51", "one.fififtyone");
             h3m.metaPut("r1", "one", "mk1.one", "m1.one_Value");
+            h3m.metaPut("r1", "one", "mkToFind", "mkToFindValue_yes");
         h3m.put("r1", "two", "2.2", "two.two");
             h3m.metaPut("r1", "two", "2.2", "mk1.two.2.2", "m1.two.2.2_Value");
             h3m.metaPut("r1", "two", "2.2", "mkToFind", "mkToFindValue_yes");
@@ -254,7 +278,7 @@ public class UtilWithMetaTests {
         // Quadruple(entries on root,        entries on level2,             entrie on level 3,                     entries on level v),
         // Quadruple(entries on root("r1"), entries on level2("r1", "one"), entries on level3("r1", "one", "1.3"), entries on levelV("r1", "one", "1.3", "one.three")) 
         // entries on "r2", "one", "1.2" "one.two"
-        return Quadruple.of(23, Quadruple.of(5, 4, 6, 8), Quadruple.of(4, 4, 4, 4), 1);
+        return Quadruple.of(24, Quadruple.of(6, 4, 6, 8), Quadruple.of(4, 4, 4, 4), 1);
     }
 
 
@@ -270,6 +294,6 @@ public class UtilWithMetaTests {
     // }
 
     private static HashMap3LWithMeta<String, String, String, String, String, String> h3m() {
-        return new HashMap3LWithMetaSameKeys<String, String, String>(new TreeMapCloneableForMeta<String, String, String>());
+        return new HashMap3LWithMetaSameKeys<String, String, String>(new TreeMapCloneable<String, String>());
     }
 }

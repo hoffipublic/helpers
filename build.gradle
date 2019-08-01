@@ -1,4 +1,7 @@
 import groovy.json.JsonSlurper
+import org.gradle.internal.logging.text.StyledTextOutput 
+import org.gradle.internal.logging.text.StyledTextOutputFactory
+import org.gradle.internal.logging.text.StyledTextOutput.Style
 
 buildscript {
     ext {
@@ -10,10 +13,6 @@ buildscript {
     repositories {
         jcenter()
     }
-
-    dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:${vp('junitJupiterPluginVersion')}"
-    }
 }
 
 plugins {
@@ -21,10 +20,8 @@ plugins {
     id 'application'
 }
 
-apply plugin: 'org.junit.platform.gradle.plugin'
-
 ext {
-    group = "yourArtefactGroup"
+    group = "hoffi.helpers"
 }
 
 repositories {
@@ -33,6 +30,7 @@ repositories {
 
 project.targetCompatibility = JavaVersion.VERSION_1_8
 project.sourceCompatibility = JavaVersion.VERSION_1_8
+def out = services.get(StyledTextOutputFactory).create("an-ouput")
 
 application {
     mainClassName = 'your.path.to.mainJavaClass'
@@ -49,14 +47,30 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    failFast = false
     testLogging.showStandardStreams = true
     testLogging {
         events "PASSED", "FAILED", "SKIPPED" //, "STARTED"
     }
-}
 
-junitPlatformTest {
-    enableAssertions = true
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    // listen to standard out and standard error of the test JVM(s)
+    onOutput { descriptor, event ->
+        // logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+        event.message
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) { // will match the outermost suite
+            if (result.failedTestCount <= 0) {
+                out.style(Style.Success).println "\nTest Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+            } else {
+                out.style(Style.Failure).println "\nTest Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+            }
+        }
+    }
 }
 
 jar {

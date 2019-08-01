@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import helpers.tuple.Quadruple;
+import helpers.util.HashMap3LWithMeta.METAKEYSORT;
 
 public class UtilEmptyTests {
 
@@ -160,11 +161,11 @@ public class UtilEmptyTests {
         h3m = h3m();
         ls = h3m.metaGet("key1", "key2", "key3", "value", "metaKey");
         h3m = h3m();
-        lmss = h3m.metaRemoveKey("key1");
+        lmss = h3m.metaRemove("key1");
         h3m = h3m();
-        ls = h3m.metaRemove("key1", "metaKey");
+        ls = h3m.metaRemoveKey("key1", "metaKey");
         h3m = h3m();
-        ls = h3m.metaRemoveValue("key1", "metaKey", "metaValue");
+        lb = h3m.metaRemoveValue("key1", "metaKey", "metaValue");
         h3m = h3m();
         h3m.metaClearMapValues("key1");
         h3m = h3m();
@@ -174,11 +175,11 @@ public class UtilEmptyTests {
         h3m = h3m();
         lb = h3m.metaContains("key1", "metaKey");
         h3m = h3m();
-        lmss = h3m.metaRemoveKey("key1", "key2");
+        lmss = h3m.metaRemove("key1", "key2");
         h3m = h3m();
-        ls = h3m.metaRemove("key1", "key2", "metaKey");
+        ls = h3m.metaRemoveKey("key1", "key2", "metaKey");
         h3m = h3m();
-        ls = h3m.metaRemoveValue("key1", "key2", "metaKey", "metaValue");
+        lb = h3m.metaRemoveValue("key1", "key2", "metaKey", "metaValue");
         h3m = h3m();
         h3m.metaClearMapValues("key1", "key2");
         h3m = h3m();
@@ -188,11 +189,11 @@ public class UtilEmptyTests {
         h3m = h3m();
         lb = h3m.metaContains("key1", "key2", "metaKey");
         h3m = h3m();
-        lmss = h3m.metaRemoveKey("key1", "key2", "key3");
+        lmss = h3m.metaRemove("key1", "key2", "key3");
         h3m = h3m();
-        ls = h3m.metaRemove("key1", "key2", "key3", "metaKey");
+        ls = h3m.metaRemoveKey("key1", "key2", "key3", "metaKey");
         h3m = h3m();
-        ls = h3m.metaRemoveValue("key1", "key2", "key3", "metaKey", "metaValue");
+        lb = h3m.metaRemoveValue("key1", "key2", "key3", "metaKey", "metaValue");
         h3m = h3m();
         h3m.metaClearMapValues("key1", "key2", "key3");
         h3m = h3m();
@@ -202,11 +203,11 @@ public class UtilEmptyTests {
         h3m = h3m();
         lb = h3m.metaContains("key1", "key2", "key3", "metaKey");
         h3m = h3m();
-        lmss = h3m.metaRemoveKey("key1", "key2", "key3", "value");
+        lmss = h3m.metaRemove("key1", "key2", "key3", "value");
         h3m = h3m();
-        ls = h3m.metaRemove("key1", "key2", "key3", "value", "metaKey");
+        ls = h3m.metaRemoveKey("key1", "key2", "key3", "value", "metaKey");
         h3m = h3m();
-        ls = h3m.metaRemoveValue("key1", "key2", "key3", "value", "metaKey", "metaValue");
+        lb = h3m.metaRemoveValue("key1", "key2", "key3", "value", "metaKey", "metaValue");
         h3m = h3m();
         h3m.metaClearMapValues("key1", "key2", "key3", "value");
         h3m = h3m();
@@ -299,10 +300,11 @@ public class UtilEmptyTests {
 
     private static HashMap3LWithMeta<String, String, String, String, String, String> h3m() {
         return new HashMap3LWithMetaSameKeys<String, String, String>(
-                        new HashMapCloneableForMeta<>(),
-                        new LinkedHashMapCloneableForMeta<>(),
-                        new TreeMapCloneableForMeta<>(),
-                        new TreeMapCloneableForMeta<>()
+                        new HashMapCloneable<>(),
+                        new LinkedHashMapCloneable<>(),
+                        new TreeMapCloneable<>(),
+                        new TreeMapCloneable<>(),
+                        METAKEYSORT.TREE
                     );
     }
 }
