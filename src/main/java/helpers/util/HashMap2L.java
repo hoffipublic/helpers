@@ -19,6 +19,7 @@ import org.apache.commons.lang3.tuple.Triple;
  * hierarchy, user can use two keys to store the values and use either of the key to retrieve it.
  * 
  * @author Prathab K
+ * @author Dirk Hoffmann
  *
  */
 public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
@@ -48,6 +49,10 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
     public V put(K1 k1, K2 k2, V v) {
         Map<K2, V> l2Map = this.get(k1); // initializes l2map
         return l2Map.put(k2, v);
+    }
+    
+    public V put(Pair<K1, K2> keys, V v) {
+        return put(keys.getLeft(), keys.getRight(), v);
     }
 
     /**
@@ -126,6 +131,10 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
         }
         return false;
     }
+    
+    public boolean containsKey(Pair<K1, K2> keys) {
+        return containsKey(keys.getLeft(), keys.getRight());
+    }
 
     /**
      * Returns <tt>true</tt> if value object is present for the specified (super)key K1
@@ -151,6 +160,10 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
             return l2Map.remove(k2);
         }
         return null;
+    }
+
+    public V remove(Pair<K1, K2> keys) {
+        return remove(keys.getLeft(), keys.getRight());
     }
 
     /**
@@ -221,6 +234,11 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
         }
 
         rootMap.clear();
+    }
+
+    public void clear(K1 k1) {
+        Map<K2, V> l2Map = this.get(k1);
+        l2Map.clear();
     }
 
 

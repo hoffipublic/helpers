@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import helpers.tuple.Quadruple;
+import helpers.tuple.Quintuple;
 import helpers.tuple.Sextuple;
 
 public class UtilWithMetaTests {
@@ -43,79 +43,191 @@ public class UtilWithMetaTests {
         m5Prototype = new LinkedHashMapCloneable<>();
     }
 
+
     @Test
-    @Disabled
-    public void treeMapWithMeta2LTest() {
-        MapCloneable<String, Map<String, String>> rootMapPrototype = new TreeMapCloneable<>();
-        MapCloneable<String, String> level2MapPrototype = new TreeMapCloneable<>();
-        HashMap2L<String, String, String> h2 = new HashMap2L<>(rootMapPrototype, level2MapPrototype);
+    public void hashMap2LWithMeta_ExceptionsTest() {
+        HashMap2LWithMeta<String, String, String, String, String> h2m;
+        h2m = h2m();
 
-        Pair<Integer, Integer> sizesPerLevel = fillData2L(h2);
+        NoSuchElementException nsee = assertThrows(NoSuchElementException.class,
+                () -> h2m.metaPut("nonex1", "m1", "mValue1"),
+                "Expected metaPut(K1 k2, MK mk, MV mv) to throw NoSuchElementException, but it didn't");
+        assertTrue(nsee.getMessage().contains("nonex1"));
+        assertTrue(nsee.getMessage().contains("m1"));
 
-        log.debug("====  forEach   TreeMap2L ===========================".toString());
-        int count = 0;
-        String prevR = "";
-        String prevL2 = "";
-        for (Triple<String, String, String> triple : h2) {
-            count++;
-            log.debug(triple.toString());
-            // test if alphabetically ascending
-            assertTrue(prevR.compareTo(triple.getLeft()) <= 0);
-            if(!prevR.equals(triple.getLeft())) {
-                prevL2 = "";
-            }
-            prevR = triple.getLeft();
-            assertTrue(prevL2.compareTo(triple.getMiddle()) <= 0);
-            prevL2 = triple.getMiddle();
-        }
-        assertEquals(sizesPerLevel.getLeft(), count);
+        nsee = assertThrows(NoSuchElementException.class,
+                () -> h2m.metaPut("nonex1", "nonex2", "m1", "mValue1"),
+                "Expected metaPut(K1 k1, K2 k2, MK mk, MV mv) to throw NoSuchElementException, but it didn't");
+        assertTrue(nsee.getMessage().contains("nonex1"));
+        assertTrue(nsee.getMessage().contains("nonex2"));
+        assertTrue(nsee.getMessage().contains("m1"));
 
-        log.debug("====  2L 'one' TreeMap2L ============================".toString());
-        count = 0;
-        prevL2 = "";
-        for (Iterator<Pair<String, String>> iter = h2.iterator("one"); iter.hasNext();) {
-            count++;
-            Pair<String, String> pair = iter.next();
-            log.debug(pair.toString());
-            // test if alphabetically ascending
-            assertTrue(prevL2.compareTo(pair.getLeft()) <= 0);
-            prevL2 = pair.getLeft();
-        }
-        assertEquals(sizesPerLevel.getRight(), count);
+        nsee = assertThrows(NoSuchElementException.class,
+                () -> h2m.metaPut("nonex1", "nonex2", "nonex3", "m1", "mValue1"),
+                "Expected metaPut(K1 k1, K2 k2, MK mk, MV mv) to throw NoSuchElementException, but it didn't");
+        assertTrue(nsee.getMessage().contains("nonex1"));
+        assertTrue(nsee.getMessage().contains("nonex2"));
+        assertTrue(nsee.getMessage().contains("nonex3"));
+        assertTrue(nsee.getMessage().contains("m1"));
 
-        log.debug("====  2L 'one' TreeMap2L conventional ===============".toString());
-        count = 0;
-        prevL2 = "";
-        for (Map.Entry<String, String> entry : h2.get("one").entrySet()) {
-            count++;
-            Pair<String, String> pair = Pair.of(entry.getKey(), entry.getValue());
-            log.debug("{} : {}", entry.getKey(), entry.getValue());
-            // test if alphabetically ascending
-            assertTrue(prevL2.compareTo(pair.getLeft()) <= 0);
-            prevL2 = pair.getLeft();
-        }
-        assertEquals(sizesPerLevel.getRight(), count);
     }
 
-    private static Pair<Integer, Integer> fillData2L(HashMap2L<String, String, String> h2) {
-        h2.put("three", "3", "three");
+    @Test
+    public void treeMap2LWithMeta2LTest() {
+        HashMap2LWithMeta<String, String, String, String, String> h2m;
+        h2m = h2m();
+
+        fillData2L(h2m);
+
+        boolean b;
+        Map<String, String> m = h2m.metaGetMap("two");
+        assertEquals(3, m.size());
+        String s = h2m.metaGet("two", "KeyMetaForRoot_two.1");
+        assertEquals("ValueMetaForRoot_two.1", s);
+        s = h2m.metaGet("two", "2.2", "KeyMetaForLevel2_two2.2.2");
+        assertEquals("ValueMetaForLevel2_two2.2.2", s);
+        s = h2m.metaGet("two", "2.2", "twotwo", "KeyMetaForValue_two2.2.3.twotwo.2");
+        assertEquals("ValueMetaForValue_two2.2.3.twotwo.2", s);
         
-        h2.put("two", "2.2", "two.two");
-        h2.put("two", "2.1", "two.one");
+        s = h2m.metaRemoveKey("two", "KeyMetaForRoot_two.1");
+        assertEquals("ValueMetaForRoot_two.1", s);
+        assertEquals(2, m.size());
+        String s2 = h2m.metaGet("two", "KeyMetaForRoot_two.1");
+        assertEquals("ValueMetaForRoot_two.1", s);
+        assertNull(s2);
+        s = h2m.metaPut("two", "KeyMetaForRoot_two.1", "ValueMetaForRoot_two.1");
+        assertNull(s);
+        s = h2m.metaGet("two", "KeyMetaForRoot_two.1");
+        assertEquals("ValueMetaForRoot_two.1", s);
+        b = h2m.metaRemoveValue("two", "KeyMetaForRoot_two.1", "ValueMetaForRoot_two.1_different");
+        assertFalse(b);
 
-        h2.put("one", "1.55", "one.fiftyfive");
-        h2.put("one", "1.51", "one.fiftyone");
-        h2.put("one", "1.3", "one.three");
-        h2.put("one", "1.2", "one.two");
-        h2.put("one", "1.1", "one.one");
-        h2.put("one", "1.4", "one.vier");
+        m = h2m.metaGetMap("two", "2.2");
+        assertEquals(4, m.size());
+        s = h2m.metaRemoveKey("two", "2.2", "KeyMetaForLevel2_two2.2.2");
+        assertEquals("ValueMetaForLevel2_two2.2.2", s);
+        assertEquals(3, m.size());
+        s2 = h2m.metaGet("two", "2.2", "KeyMetaForLevel2_two2.2.2");
+        assertEquals("ValueMetaForLevel2_two2.2.2", s);
+        assertNull(s2);
+        s = h2m.metaPut("two", "2.2", "KeyMetaForLevel2_two2.2.2", "ValueMetaForLevel2_two2.2.2");
+        assertNull(s);
+        s = h2m.metaGet("two", "2.2", "KeyMetaForLevel2_two2.2.2");
+        assertEquals("ValueMetaForLevel2_two2.2.2", s);
+        b = h2m.metaRemoveValue("two", "2.2", "KeyMetaForLevel2_two2.2.2",
+                "ValueMetaForLevel2_two2.2.2_different");
+        assertFalse(b);
 
-        // overall entries, entries for "one"
-        return Pair.of(9, 6);
+
+        
+        h2m = h2m();
+        Pair<Integer, Integer> quad = fillData2L(h2m);
+        int count = 0;
+        log.debug("====  forEach HashMap2L ==============================".toString());
+        for (Triple<String, String, String> triple : h2m) {
+            log.debug(triple.toString());
+            count++;
+        }
+        assertEquals(9, count);
+        count = 0;
+        log.debug("====  findAllInRootByMeta HashMap2L ==============================".toString());
+        for (String mv : h2m.findAllInRootByMeta("mkToFindKey_yes")) {
+            log.debug(mv.toString());
+            count++;
+            assertTrue(Arrays.asList("two").contains(mv));
+        }
+        assertTrue(count > 0);
+        log.debug("====  findAllInLevel2ByMeta HashMap2L =============================".toString());
+        count = 0;
+        for (Pair<String, String> p : h2m.findAllInLevel2ByMeta("mkToFindKey_yes")) {
+            log.debug(p.toString());
+            count++;
+            assertTrue(Arrays.asList("(two,2.2)", "(one,1.2)").contains(p.toString()));
+        }
+        assertTrue(count > 0);
+        log.debug("====  findAllInAllByMeta HashMap2L ================================".toString());
+        count = 0;
+        for (Triple<String, String, String> q : h2m.findAllInAllByMeta("mkToFindKey_yes")) {
+            log.debug(q.toString());
+            count++;
+            assertTrue(
+                Arrays.asList("(two,null,null)", "(two,2.2,null)", "(two,2.2,twoone)",
+                "(two,2.2,twotwo)", "(one,1.2,null)").contains(q.toString()));
+        }
+        assertEquals(5, count);
+        log.debug("====  findAllInAllByMetaValue HashMap2L ===========================".toString());
+        count = 0;
+        for (Triple<String, String, String> q : h2m.findAllInAllByMetaValue("mkToFindKey_yes", "mkToFindValue_yes")) {
+            log.debug(q.toString());
+            count++;
+            assertTrue(Arrays.asList("(two,null,null)", "(two,2.2,null)", "(two,2.2,twoone)",
+                    "(two,2.2,twotwo)").contains(q.toString()));
+        }
+        assertEquals(4, count);
     }
 
     @Test
-    public void hashMapWithMeta_ExceptionsTest() {
+    public void hashMap2LWithMeta_IteratorTest() {
+        HashMap2LWithMeta<String, String, String, String, String> h2m;
+        h2m = h2m();
+        Pair<Integer, Integer> pair =
+                fillData2L(h2m);
+
+        int count = 0;
+        log.debug("====  2L iteratorMetaBreadthFirst ====================================".toString());
+        for (Iterator<Quintuple<String, String, String, String, String>> iter =
+                h2m.iteratorMetaBreadthFirst(); iter.hasNext();) {
+            count++;
+            log.debug(iter.next().toString().replaceAll(",null", ","));
+        }
+        assertEquals(pair.getLeft(), count);
+
+        log.debug("====  2L iteratorMetaDepthFirst ======================================".toString());
+        count = 0;
+        for (Iterator<Quintuple<String, String, String, String, String>> iter =
+                h2m.iteratorMetaDepthFirst(); iter.hasNext();) {
+            count++;
+            log.debug(iter.next().toString().replaceAll(",null", ","));
+        }
+        assertEquals(pair.getLeft(), count);
+    }
+
+
+    private static Pair<Integer, Integer> fillData2L(HashMap2LWithMeta<String, String, String, String, String> h2m) {
+        h2m.put("three", "3", "three");
+        
+        h2m.put("two", "2.2", "twotwo");
+            h2m.metaPut("two", "KeyMetaForRoot_two.1", "ValueMetaForRoot_two.1");
+            h2m.metaPut("two", "KeyMetaForRoot_two.2", "ValueMetaForRoot_two.2");
+            h2m.metaPut("two", "mkToFindKey_yes", "mkToFindValue_yes");
+            h2m.metaPut("two", "2.2", "KeyMetaForLevel2_two2.2.1", "ValueMetaForLevel2_two2.2.1");
+            h2m.metaPut("two", "2.2", "mkToFindKey_yes", "mkToFindValue_yes");
+            h2m.metaPut("two", "2.2", "KeyMetaForLevel2_two2.2.2", "ValueMetaForLevel2_two2.2.2");
+            h2m.metaPut("two", "2.2", "KeyMetaForLevel2_two2.2.3", "ValueMetaForLevel2_two2.2.3");
+            h2m.metaPut("two", "2.2", "twotwo", "KeyMetaForValue_two2.2.3.twotwo.1", "ValueMetaForValue_two2.2.3.twotwo.1");
+            h2m.metaPut("two", "2.2", "twotwo", "KeyMetaForValue_two2.2.3.twotwo.2", "ValueMetaForValue_two2.2.3.twotwo.2");
+            h2m.metaPut("two", "2.2", "twotwo", "mkToFindKey_yes", "mkToFindValue_yes");
+        h2m.put("two", "2.1", "twoone");
+            h2m.metaPut("two", "2.1", "twoone", "KeyMetaForValue_two2.1.twoone.1", "ValueMetaForValue_two2.1.twoone.1");
+            h2m.metaPut("two", "2.1", "twoone", "KeyMetaForValue_two2.1.twoone.2", "ValueMetaForValue_two2.1.twoone.2");
+            h2m.metaPut("two", "2.1", "twoone", "KeyMetaForValue_two2.1.twoone.3", "ValueMetaForValue_two2.1.twoone.3");
+            h2m.metaPut("two", "2.2", "twoone", "mkToFindKey_yes", "mkToFindValue_yes");
+
+        h2m.put("one", "1.55", "one.fiftyfive");
+        h2m.put("one", "1.51", "one.fiftyone");
+        h2m.put("one", "1.3", "one.three");
+        h2m.put("one", "1.2", "one.two");
+            h2m.metaPut("one", "1.2", "KeyMetaForLevel2_one1.2.onetwo.1", "ValueMetaForLevel2_one1.2.onetwo.1");
+            h2m.metaPut("one", "1.2", "mkToFindKey_yes", "mkToFindValue_no");
+        h2m.put("one", "1.1", "one.one");
+        h2m.put("one", "1.4", "one.vier");
+
+        // overall meta entries, entries for "two"
+        return Pair.of(16, 14);
+    }
+
+    @Test
+    public void hashMap3LWithMeta_ExceptionsTest() {
         HashMap3LWithMeta<String, String, String, String, String, String> h3m;
         h3m = h3m();
         NoSuchElementException nsee = assertThrows(NoSuchElementException.class, () -> h3m.metaPut("nonex1", "m1", "mValue1"),
@@ -147,7 +259,7 @@ public class UtilWithMetaTests {
 
 
     @Test
-    public void hashMapWithMeta3LTest() {
+    public void hashMap3LWithMeta3LTest() {
         HashMap3LWithMeta<String, String, String, String, String, String> h3m;
         h3m = h3m();
         Quadruple<Integer, Quadruple<Integer, Integer, Integer, Integer>, Quadruple<Integer, Integer, Integer, Integer>, Integer>
@@ -185,46 +297,60 @@ public class UtilWithMetaTests {
         log.debug("====  findAllInRootByMeta HashMap3L ==============================".toString());
         for (String mv : h3m.findAllInRootByMeta("mkToFind")) {
             log.debug(mv.toString());
+            count++;
             assertTrue(Arrays.asList("r2").contains(mv));
         }
+        assertTrue(count > 0);
         log.debug("====  findAllInLevel2ByMeta HashMap3L =============================".toString());
+        count = 0;
         for (Pair<String, String> p : h3m.findAllInLevel2ByMeta("mkToFind")) {
             log.debug(p.toString());
+            count++;
             assertTrue(Arrays.asList("(r1,one)").contains(p.toString()));
         }
+        assertTrue(count > 0);
         log.debug("====  findAllInLevel3ByMeta HashMap3L =============================".toString());
+        count = 0;
         for (Triple<String, String, String> t : h3m.findAllInLevel3ByMeta("mkToFind")) {
             log.debug(t.toString());
+            count++;
             assertTrue(Arrays.asList("(r1,one,1.3)", "(r1,two,2.2)").contains(t.toString()));
         }
+        assertTrue(count > 0);
         log.debug("====  findAllInAllByMeta HashMap3L ================================".toString());
+        count = 0;
         for (Quadruple<String, String, String, String> q : h3m.findAllInAllByMeta("mkToFind")) {
             log.debug(q.toString());
+            count++;
             assertTrue(Arrays.asList("(r2,null,null,null)", "(r1,one,null,null)", "(r1,one,1.3,null)", "(r1,two,2.2,null)", "(r1,one,1.3,one.three)").contains(q.toString()));
         }
+        assertEquals(5, count);
         log.debug("====  findAllInAllByMetaValue HashMap3L ===========================".toString());
+        count = 0;
         for (Quadruple<String, String, String, String> q : h3m.findAllInAllByMetaValue("mkToFind", "mkToFindValue_yes")) {
             log.debug(q.toString());
+            count++;
             assertTrue(Arrays.asList("(r2,null,null,null)", "(r1,one,null,null)", "(r1,one,1.3,null)", "(r1,two,2.2,null)").contains(q.toString()));
         }
+        assertEquals(4, count);
     }
 
     @Test
-    public void hashMapWithMeta_IteratorTest() {
+    public void hashMap3LWithMeta_IteratorTest() {
         HashMap3LWithMeta<String, String, String, String, String, String> h3m;
         h3m = h3m();
         Quadruple<Integer, Quadruple<Integer, Integer, Integer, Integer>, Quadruple<Integer, Integer, Integer, Integer>, Integer>
             quad = fillData3L(h3m);
 
         int count = 0;
-        log.debug("====  iteratorMetaBreadthFirst ====================================".toString());
+        log.debug("====  3L iteratorMetaBreadthFirst ====================================".toString());
         for(Iterator<Sextuple<String, String, String, String, String, String>> iter = h3m.iteratorMetaBreadthFirst(); iter.hasNext();) {
             count++;
             log.debug(iter.next().toString().replaceAll(",null", ","));
         }
         assertEquals(quad.getRoot(), count, "iteratorMeta()");
         
-        log.debug("====  iteratorMetaDepthFirst ======================================".toString());
+        log.debug("====  3L iteratorMetaDepthFirst ======================================".toString());
         count = 0;
         for(Iterator<Sextuple<String, String, String, String, String, String>> iter = h3m.iteratorMetaDepthFirst(); iter.hasNext();) {
             count++;
@@ -292,6 +418,10 @@ public class UtilWithMetaTests {
     //                m5Prototype, m4Prototype, m3Prototype, m2Prototype
     //     ); // values metadata
     // }
+
+    private static HashMap2LWithMeta<String, String, String, String, String> h2m() {
+        return new HashMap2LWithMetaSameKeys<String, String, String>(new TreeMapCloneable<String, String>());
+    }
 
     private static HashMap3LWithMeta<String, String, String, String, String, String> h3m() {
         return new HashMap3LWithMetaSameKeys<String, String, String>(new TreeMapCloneable<String, String>());
