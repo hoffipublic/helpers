@@ -11,6 +11,7 @@ buildscript {
     }
 
     repositories {
+        mavenLocal()
         jcenter()
     }
 }
@@ -18,13 +19,19 @@ buildscript {
 plugins {
     id 'java'
     id 'application'
+    id 'maven-publish'
 }
 
 ext {
-    group = "hoffi.helpers"
+    group = "hoffi"
+    //artifact = project.name
+    version = '0.1.0.SNAPSHOT'
 }
+group = project.ext.group
+version = project.ext.version
 
 repositories {
+    mavenLocal()
     jcenter()
 }
 
@@ -74,6 +81,8 @@ test {
 }
 
 jar {
+    archivesBaseName = "${project.ext.group}-${project.name}"
+
     manifest {
         attributes "Main-Class": application.mainClassName
     }
@@ -85,6 +94,14 @@ jar {
             .filter {  (it.isDirectory() && it.listFiles().length > 0) || it.isFile() }
             .collect { it.isDirectory() ? it : zipTree(it) }
 
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from project.components.java
+        }
     }
 }
 
