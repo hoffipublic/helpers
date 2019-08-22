@@ -97,12 +97,23 @@ jar {
     }
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+// task javadocJar(type: Jar) {
+//     from javadoc
+//     classifier = 'javadoc'
+// }
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId = "${project.ext.group}-${project.name}" // jar.archivesBaseName
-
-            from project.components.java
+            from components.java
+            artifact sourcesJar
+            // artifact javadocJar
         }
     }
 }

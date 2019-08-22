@@ -1,6 +1,7 @@
 package helpers.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,8 @@ public class HashMap3L<K1, K2, K3, V> implements Iterable<Quadruple<K1, K2, K3, 
 
     /** root Map structure holding other Map structures to implement HashMap3L */
     public Map<K1, Map<K2, Map<K3, V>>> rootMap;
+    /** global metadata, not part of the hierarchy */
+    public Map<String, Object> global = new HashMap<>();
     /**
      * prototypes of maps to clone from (for being able to use different Map implementation types)
      */

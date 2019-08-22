@@ -1,6 +1,7 @@
 package helpers.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,11 @@ public class HashMap2L<K1, K2, V>  implements Iterable<Triple<K1, K2, V>> {
 
     /** Map structure holding another Map structure to implement HashMap2L */
     public MapCloneable<K1, Map<K2, V>> rootMap;
-    /** prototype of map to clone from (for being able to use different Map implementation types) */
+    /** global metadata, not part of the hierarchy */
+    public Map<String, Object> global = new HashMap<>();
+    /**
+     * prototypes of maps to clone from (for being able to use different Map implementation types)
+     */
     protected MapCloneable<K2, V> level2MapClonePrototype;
 
 
